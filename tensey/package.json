@@ -1,0 +1,9 @@
+{
+  "name": "tensey",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

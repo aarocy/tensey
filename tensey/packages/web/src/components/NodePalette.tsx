@@ -1,0 +1,84 @@
+import { useState, useCallback } from "react";
+import { listOps, type OperatorDef } from "@tensey/engine";
+import { useTenseyStore } from "../store/graph";
+import clsx from "clsx";
+
+const CATEGORY_ORDER = [
+  "io","convolution","linear","activation","normalization",
+  "pooling","attention","recurrent","reshape","merge","custom",
+];
+
+const CATEGORY_LABELS: Record<string,string> = {
+  io:"I/O", convolution:"Conv", linear:"Linear", activation:"Act",
+  normalization:"Norm", pooling:"Pool", attention:"Attn",
+  recurrent:"RNN", reshape:"Shape", merge:"Merge", custom:"Custom",
+};
+
+const CATEGORY_COLOR: Record<string,string> = {
+  io:"text-text-disabled", convolution:"text-blue-400", linear:"text-purple-400",
+  activation:"text-emerald-400", normalization:"text-yellow-400", pooling:"text-orange-400",
+  attention:"text-cyan-400", recurrent:"text-pink-400", reshape:"text-zinc-400",
+  merge:"text-violet-400", custom:"text-text-tertiary",
+};
+
+export function NodePalette() {
+  const [query, setQuery] = useState("");
+  const addNode = useTenseyStore((s) => s.addNode);
+  const ops = listOps();
+
+  const filtered = query
+    ? ops.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()) || o.opType.toLowerCase().includes(query.toLowerCase()))
+    : ops;
+
+  const grouped = CATEGORY_ORDER.reduce<Record<string, OperatorDef[]>>((acc, cat) => {
+    const items = filtered.filter((o) => o.category === cat);
+    if (items.length > 0) acc[cat] = items;
+    return acc;
+  }, {});
+
+  const onDragStart = useCallback((e: React.DragEvent, opType: string) => {
+    e.dataTransfer.setData("tensey/opType", opType);
+    e.dataTransfer.effectAllowed = "copy";
+  }, []);
+
+  const onClick = useCallback((opType: string) => {
+    addNode(opType, { x: 300 + Math.random() * 160 - 80, y: 200 + Math.random() * 80 - 40 });
+  }, [addNode]);
+
+  return (
+    <aside className="w-44 shrink-0 bg-surface-1 border-r border-border flex flex-col overflow-hidden">
+      <div className="px-2 py-1.5 border-b border-border">
+        <input
+          type="text"
+          placeholder="filter layers…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full bg-surface-0 border border-border text-text-primary text-xs font-mono rounded px-2 py-1 placeholder:text-text-disabled outline-none focus:border-accent/50 transition-colors"
+        />
+      </div>
+      <div className="flex-1 overflow-y-auto py-0.5">
+        {Object.entries(grouped).map(([cat, items]) => (
+          <div key={cat} className="mb-1">
+            <div className="px-2.5 py-0.5 text-2xs font-mono text-text-disabled uppercase tracking-widest mt-1">
+              {CATEGORY_LABELS[cat] ?? cat}
+            </div>
+            {items.map((op) => (
+              <div
+                key={op.opType}
+                draggable
+                onDragStart={(e) => onDragStart(e, op.opType)}
+                onClick={() => onClick(op.opType)}
+                className="px-2.5 py-1 mx-0.5 rounded cursor-pointer flex items-center hover:bg-surface-3 active:bg-surface-4 transition-colors"
+              >
+                <span className={clsx("text-xs font-mono", CATEGORY_COLOR[cat])}>{op.label}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <div className="px-3 py-4 text-xs font-mono text-text-disabled text-center">no match</div>
+        )}
+      </div>
+    </aside>
+  );
+}

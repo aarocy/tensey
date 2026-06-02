@@ -1,0 +1,548 @@
+import type { OperatorDef } from "./ir.js";
+
+/** Global operator registry — add new ops here without touching the engine */
+const registry = new Map<string, OperatorDef>();
+
+export function registerOp(def: OperatorDef): void {
+  if (registry.has(def.opType)) {
+    throw new Error(`Operator "${def.opType}" is already registered`);
+  }
+  registry.set(def.opType, def);
+}
+
+export function getOp(opType: string): OperatorDef | undefined {
+  return registry.get(opType);
+}
+
+export function listOps(): OperatorDef[] {
+  return Array.from(registry.values());
+}
+
+// ---------------------------------------------------------------------------
+// Seed operators
+// ---------------------------------------------------------------------------
+
+const SEED_OPS: OperatorDef[] = [
+  {
+    opType: "input",
+    label: "Input",
+    category: "io",
+    defaultParams: { shape: [null, 3, 224, 224] },
+    inputPorts: [],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "output",
+    label: "Output",
+    category: "io",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: [],
+  },
+  {
+    opType: "linear",
+    label: "Linear",
+    category: "linear",
+    defaultParams: { in_features: 512, out_features: 256, bias: true },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "conv2d",
+    label: "Conv2d",
+    category: "convolution",
+    defaultParams: {
+      in_channels: 3,
+      out_channels: 64,
+      kernel_size: 3,
+      stride: 1,
+      padding: 0,
+      bias: true,
+    },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "relu",
+    label: "ReLU",
+    category: "activation",
+    defaultParams: { inplace: false },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "gelu",
+    label: "GELU",
+    category: "activation",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "batch_norm2d",
+    label: "BatchNorm2d",
+    category: "normalization",
+    defaultParams: { num_features: 64, eps: 1e-5, momentum: 0.1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "layer_norm",
+    label: "LayerNorm",
+    category: "normalization",
+    defaultParams: { normalized_shape: [512], eps: 1e-5 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "max_pool2d",
+    label: "MaxPool2d",
+    category: "pooling",
+    defaultParams: { kernel_size: 2, stride: 2, padding: 0 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "avg_pool2d",
+    label: "AvgPool2d",
+    category: "pooling",
+    defaultParams: { kernel_size: 2, stride: 2, padding: 0 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "adaptive_avg_pool2d",
+    label: "AdaptiveAvgPool2d",
+    category: "pooling",
+    defaultParams: { output_size: [1, 1] },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "dropout",
+    label: "Dropout",
+    category: "activation",
+    defaultParams: { p: 0.5 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "flatten",
+    label: "Flatten",
+    category: "reshape",
+    defaultParams: { start_dim: 1, end_dim: -1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "add",
+    label: "Add",
+    category: "merge",
+    defaultParams: {},
+    inputPorts: ["a", "b"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "concat",
+    label: "Concat",
+    category: "merge",
+    defaultParams: { dim: 1 },
+    inputPorts: ["a", "b"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "multi_head_attention",
+    label: "MultiHeadAttention",
+    category: "attention",
+    defaultParams: { embed_dim: 512, num_heads: 8, dropout: 0.0, bias: true },
+    inputPorts: ["query", "key", "value"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "embedding",
+    label: "Embedding",
+    category: "linear",
+    defaultParams: { num_embeddings: 30522, embedding_dim: 768 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+];
+
+SEED_OPS.forEach(registerOp);
+
+// ---------------------------------------------------------------------------
+// Extended operators
+// ---------------------------------------------------------------------------
+
+const EXTENDED_OPS: OperatorDef[] = [
+  // Convolution
+  {
+    opType: "conv1d",
+    label: "Conv1d",
+    category: "convolution",
+    defaultParams: { in_channels: 64, out_channels: 128, kernel_size: 3, stride: 1, padding: 0, bias: true },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "conv_transpose2d",
+    label: "ConvTranspose2d",
+    category: "convolution",
+    defaultParams: { in_channels: 64, out_channels: 32, kernel_size: 2, stride: 2, padding: 0, bias: true },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "conv3d",
+    label: "Conv3d",
+    category: "convolution",
+    defaultParams: { in_channels: 3, out_channels: 32, kernel_size: 3, stride: 1, padding: 0, bias: true },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "conv_transpose1d",
+    label: "ConvTranspose1d",
+    category: "convolution",
+    defaultParams: { in_channels: 64, out_channels: 32, kernel_size: 2, stride: 2, padding: 0, bias: true },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "conv_transpose3d",
+    label: "ConvTranspose3d",
+    category: "convolution",
+    defaultParams: { in_channels: 32, out_channels: 16, kernel_size: 2, stride: 2, padding: 0, bias: true },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "depthwise_conv2d",
+    label: "DepthwiseConv2d",
+    category: "convolution",
+    defaultParams: { channels: 64, kernel_size: 3, stride: 1, padding: 1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "separable_conv2d",
+    label: "SeparableConv2d",
+    category: "convolution",
+    defaultParams: { in_channels: 64, out_channels: 128, kernel_size: 3, stride: 1, padding: 1, bias: true },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  // Activation
+  {
+    opType: "sigmoid",
+    label: "Sigmoid",
+    category: "activation",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "tanh",
+    label: "Tanh",
+    category: "activation",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "leaky_relu",
+    label: "LeakyReLU",
+    category: "activation",
+    defaultParams: { negative_slope: 0.01 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "softmax",
+    label: "Softmax",
+    category: "activation",
+    defaultParams: { dim: -1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "silu",
+    label: "SiLU",
+    category: "activation",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "log_softmax",
+    label: "LogSoftmax",
+    category: "activation",
+    defaultParams: { dim: -1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "elu",
+    label: "ELU",
+    category: "activation",
+    defaultParams: { alpha: 1.0 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "selu",
+    label: "SELU",
+    category: "activation",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "prelu",
+    label: "PReLU",
+    category: "activation",
+    defaultParams: { num_parameters: 1, init: 0.25 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "mish",
+    label: "Mish",
+    category: "activation",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "hard_swish",
+    label: "HardSwish",
+    category: "activation",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "softplus",
+    label: "Softplus",
+    category: "activation",
+    defaultParams: { beta: 1, threshold: 20 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  // Normalization
+  {
+    opType: "batch_norm1d",
+    label: "BatchNorm1d",
+    category: "normalization",
+    defaultParams: { num_features: 64, eps: 1e-5, momentum: 0.1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "group_norm",
+    label: "GroupNorm",
+    category: "normalization",
+    defaultParams: { num_groups: 8, num_channels: 64, eps: 1e-5 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "instance_norm2d",
+    label: "InstanceNorm2d",
+    category: "normalization",
+    defaultParams: { num_features: 64, eps: 1e-5 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "batch_norm3d",
+    label: "BatchNorm3d",
+    category: "normalization",
+    defaultParams: { num_features: 32, eps: 1e-5, momentum: 0.1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "rms_norm",
+    label: "RMSNorm",
+    category: "normalization",
+    defaultParams: { normalized_shape: [512], eps: 1e-6 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  // Reshape
+  {
+    opType: "reshape",
+    label: "Reshape",
+    category: "reshape",
+    defaultParams: { shape: [1, -1] },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "permute",
+    label: "Permute",
+    category: "reshape",
+    defaultParams: { dims: [0, 2, 1] },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "unsqueeze",
+    label: "Unsqueeze",
+    category: "reshape",
+    defaultParams: { dim: 1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "squeeze",
+    label: "Squeeze",
+    category: "reshape",
+    defaultParams: { dim: 1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "transpose",
+    label: "Transpose",
+    category: "reshape",
+    defaultParams: { dim0: 1, dim1: 2 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "pad",
+    label: "Pad",
+    category: "reshape",
+    defaultParams: { pad: [1, 1, 1, 1], mode: "constant", value: 0 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  // Pooling
+  {
+    opType: "max_pool1d",
+    label: "MaxPool1d",
+    category: "pooling",
+    defaultParams: { kernel_size: 2, stride: 2, padding: 0 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "avg_pool1d",
+    label: "AvgPool1d",
+    category: "pooling",
+    defaultParams: { kernel_size: 2, stride: 2, padding: 0 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "max_pool3d",
+    label: "MaxPool3d",
+    category: "pooling",
+    defaultParams: { kernel_size: 2, stride: 2, padding: 0 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "avg_pool3d",
+    label: "AvgPool3d",
+    category: "pooling",
+    defaultParams: { kernel_size: 2, stride: 2, padding: 0 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "global_avg_pool2d",
+    label: "GlobalAvgPool2d",
+    category: "pooling",
+    defaultParams: {},
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "adaptive_max_pool2d",
+    label: "AdaptiveMaxPool2d",
+    category: "pooling",
+    defaultParams: { output_size: [1, 1] },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  // Merge
+  {
+    opType: "multiply",
+    label: "Multiply",
+    category: "merge",
+    defaultParams: {},
+    inputPorts: ["a", "b"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "subtract",
+    label: "Subtract",
+    category: "merge",
+    defaultParams: {},
+    inputPorts: ["a", "b"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "matmul",
+    label: "MatMul",
+    category: "merge",
+    defaultParams: {},
+    inputPorts: ["a", "b"],
+    outputPorts: ["out"],
+  },
+  // Recurrent
+  {
+    opType: "rnn",
+    label: "RNN",
+    category: "recurrent",
+    defaultParams: { input_size: 256, hidden_size: 512, num_layers: 1, bias: true, batch_first: true },
+    inputPorts: ["in"],
+    outputPorts: ["out", "h_n"],
+  },
+  {
+    opType: "lstm",
+    label: "LSTM",
+    category: "recurrent",
+    defaultParams: { input_size: 256, hidden_size: 512, num_layers: 1, bias: true, batch_first: true },
+    inputPorts: ["in"],
+    outputPorts: ["out", "h_n", "c_n"],
+  },
+  {
+    opType: "gru",
+    label: "GRU",
+    category: "recurrent",
+    defaultParams: { input_size: 256, hidden_size: 512, num_layers: 1, bias: true, batch_first: true },
+    inputPorts: ["in"],
+    outputPorts: ["out", "h_n"],
+  },
+  // Upsample
+  {
+    opType: "upsample",
+    label: "Upsample",
+    category: "reshape",
+    defaultParams: { scale_factor: 2, mode: "nearest" },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "transformer_encoder",
+    label: "TransformerEncoder",
+    category: "attention",
+    defaultParams: { d_model: 512, nhead: 8, num_layers: 6, dim_feedforward: 2048, dropout: 0.1 },
+    inputPorts: ["in"],
+    outputPorts: ["out"],
+  },
+  {
+    opType: "transformer_decoder",
+    label: "TransformerDecoder",
+    category: "attention",
+    defaultParams: { d_model: 512, nhead: 8, num_layers: 6, dim_feedforward: 2048, dropout: 0.1 },
+    inputPorts: ["target", "memory"],
+    outputPorts: ["out"],
+  },
+];
+
+EXTENDED_OPS.forEach(registerOp);
