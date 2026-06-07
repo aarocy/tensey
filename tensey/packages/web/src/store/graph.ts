@@ -10,7 +10,14 @@ import {
   type IRGraph, type IRNode, type IREdge,
   type ParamValue, type ShapeAnalysisResult, type TelemetryReport, type ValidationResult,
 } from "@tensey/engine";
-import { saveGraph as saveGraphFile } from "../lib/persistence";
+import {
+  clearWorkspaceGraph,
+  loadWorkspaceGraph,
+  saveGraph as saveGraphFile,
+  saveWorkspaceGraph,
+} from "../lib/persistence";
+import { createDemoGraph } from "../lib/demoGraph";
+import { getExampleGraph, type ExampleGraphSpec } from "../lib/examples";
 
 export interface TenseyNodeData extends Record<string, unknown> {
   irNode: IRNode;
@@ -26,6 +33,83 @@ interface GraphSnapshot {
 }
 
 const HISTORY_LIMIT = 80;
+const DEFAULT_PALETTE_WIDTH = 244;
+const DEFAULT_INSPECTOR_WIDTH = 280;
+const PALETTE_WIDTH_KEY = "tensey:paletteWidth";
+const INSPECTOR_WIDTH_KEY = "tensey:inspectorWidth";
+const INTRO_SEEN_KEY = "tensey:introSeen";
+const INTRO_SESSION_COOKIE = "tensey_intro_seen";
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function readStoredNumber(key: string, fallback: number): number {
+  if (typeof window === "undefined") return fallback;
+  const raw = window.localStorage.getItem(key);
+  const value = raw ? Number(raw) : fallback;
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function readStoredFlag(key: string): boolean {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(key) === "1";
+}
+
+function hasSessionCookie(name: string): boolean {
+  if (typeof window === "undefined") return false;
+  return document.cookie.split("; ").some((part) => part === `${name}=1`);
+}
+
+function setSessionCookie(name: string): void {
+  if (typeof window === "undefined") return;
+  document.cookie = `${name}=1; path=/; SameSite=Lax`;
+}
+
+function introHasBeenSeen(): boolean {
+  if (typeof window === "undefined") return false;
+  return hasSessionCookie(INTRO_SESSION_COOKIE) || readStoredFlag(INTRO_SEEN_KEY);
+}
+
+function markIntroSeen(permanent = false): void {
+  if (typeof window === "undefined") return;
+  setSessionCookie(INTRO_SESSION_COOKIE);
+  if (permanent) {
+    window.localStorage.setItem(INTRO_SEEN_KEY, "1");
+  }
+}
+
+function persistWorkspaceState(state: Pick<TenseyStore, "nodes" | "edges" | "graphName">): void {
+  saveWorkspaceGraph(rfToIrGraph(state.nodes, state.edges, state.graphName));
+}
+
+function createWorkspaceFromGraph(graph: IRGraph) {
+  return {
+    nodes: graph.nodes.map(irToRfNode),
+    edges: graph.edges.map(irToRfEdge),
+    graphName: graph.name,
+    selectedNodeId: null,
+    selectedNodeIds: [],
+    past: [],
+    future: [],
+    canUndo: false,
+    canRedo: false,
+  } satisfies Pick<TenseyStore, "nodes" | "edges" | "graphName" | "selectedNodeId" | "selectedNodeIds" | "past" | "future" | "canUndo" | "canRedo">;
+}
+
+function createEmptyWorkspace() {
+  return {
+    nodes: [],
+    edges: [],
+    graphName: "Untitled",
+    selectedNodeId: null,
+    selectedNodeIds: [],
+    past: [],
+    future: [],
+    canUndo: false,
+    canRedo: false,
+  } satisfies Pick<TenseyStore, "nodes" | "edges" | "graphName" | "selectedNodeId" | "selectedNodeIds" | "past" | "future" | "canUndo" | "canRedo">;
+}
 
 function cloneNode(node: Node<TenseyNodeData>): Node<TenseyNodeData> {
   const irNode = node.data.irNode;
@@ -100,10 +184,16 @@ export function rfToIrGraph(nodes: Node<TenseyNodeData>[], edges: Edge[], name =
   };
 }
 
+const storedWorkspaceGraph = loadWorkspaceGraph();
+const initialWorkspace = storedWorkspaceGraph ? createWorkspaceFromGraph(storedWorkspaceGraph) : createEmptyWorkspace();
+
 interface TenseyStore {
   nodes: Node<TenseyNodeData>[];
   edges: Edge[];
   graphName: string;
+  paletteWidth: number;
+  inspectorWidth: number;
+  isIntroOpen: boolean;
   dagResult: ValidationResult | null;
   shapeResult: ShapeAnalysisResult | null;
   telemetry: TelemetryReport | null;
@@ -139,6 +229,12 @@ interface TenseyStore {
   runAnalysis: () => void;
   clearGraph: () => void;
   setGraphName: (name: string) => void;
+  setPaletteWidth: (width: number) => void;
+  setInspectorWidth: (width: number) => void;
+  openIntro: () => void;
+  closeIntro: () => void;
+  loadDemoGraph: () => void;
+  loadExampleGraph: (id: ExampleGraphSpec["id"]) => void;
   saveGraph: () => void;
   loadGraph: (irGraph: IRGraph) => void;
 }
@@ -163,7 +259,10 @@ function runFullAnalysis(nodes: Node<TenseyNodeData>[], edges: Edge[]) {
 }
 
 export const useTenseyStore = create<TenseyStore>((set, get) => ({
-  nodes: [], edges: [], graphName: "Untitled",
+  ...initialWorkspace,
+  paletteWidth: readStoredNumber(PALETTE_WIDTH_KEY, DEFAULT_PALETTE_WIDTH),
+  inspectorWidth: readStoredNumber(INSPECTOR_WIDTH_KEY, DEFAULT_INSPECTOR_WIDTH),
+  isIntroOpen: !introHasBeenSeen() && storedWorkspaceGraph === null,
   dagResult: null, shapeResult: null, telemetry: null,
   selectedNodeId: null, selectedNodeIds: [], clipboard: [],
   past: [], future: [], canUndo: false, canRedo: false,
@@ -460,23 +559,63 @@ export const useTenseyStore = create<TenseyStore>((set, get) => ({
       selectedNodeId: selectedNodeIds[selectedNodeIds.length - 1] ?? null,
     };
   }),
-  setGraphName: (name) => set((s) => ({ ...pushSnapshot(s), graphName: name, canUndo: true, canRedo: false })),
+  setGraphName: (name) => {
+    set((s) => ({ ...pushSnapshot(s), graphName: name, canUndo: true, canRedo: false }));
+    persistWorkspaceState(get());
+  },
+
+  setPaletteWidth: (width) => {
+    const next = clamp(Math.round(width), 200, 360);
+    set({ paletteWidth: next });
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(PALETTE_WIDTH_KEY, String(next));
+    }
+  },
+  setInspectorWidth: (width) => {
+    const next = clamp(Math.round(width), 240, 380);
+    set({ inspectorWidth: next });
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(INSPECTOR_WIDTH_KEY, String(next));
+    }
+  },
+  openIntro: () => {
+    if (introHasBeenSeen()) return;
+    set({ isIntroOpen: true });
+  },
+  closeIntro: () => {
+    set({ isIntroOpen: false });
+    markIntroSeen(false);
+  },
+  loadDemoGraph: () => {
+    markIntroSeen(true);
+    get().loadGraph(createDemoGraph());
+    set({ isIntroOpen: false });
+  },
+  loadExampleGraph: (id) => {
+    markIntroSeen(true);
+    get().loadGraph(getExampleGraph(id).graph);
+    set({ isIntroOpen: false });
+  },
 
   runAnalysis: () => {
     const { nodes, edges } = get();
     if (nodes.length === 0) { set({ dagResult: null, shapeResult: null, telemetry: null }); return; }
     const { dagResult, shapeResult, telemetry, annotatedNodes } = runFullAnalysis(nodes, edges);
     set({ dagResult, shapeResult, telemetry, nodes: annotatedNodes });
+    persistWorkspaceState(get());
   },
 
-  clearGraph: () => set((s) => ({
-    ...pushSnapshot(s),
-    nodes: [], edges: [], graphName: "Untitled",
-    dagResult: null, shapeResult: null, telemetry: null, selectedNodeId: null,
-    selectedNodeIds: [],
-    canUndo: true,
-    canRedo: false,
-  })),
+  clearGraph: () => {
+    set((s) => ({
+      ...pushSnapshot(s),
+      nodes: [], edges: [], graphName: "Untitled",
+      dagResult: null, shapeResult: null, telemetry: null, selectedNodeId: null,
+      selectedNodeIds: [],
+      canUndo: true,
+      canRedo: false,
+    }));
+    clearWorkspaceGraph();
+  },
 
   saveGraph: () => {
     const { nodes, edges, graphName } = get();
@@ -484,15 +623,9 @@ export const useTenseyStore = create<TenseyStore>((set, get) => ({
   },
 
   loadGraph: (irGraph) => {
-    const nodes = irGraph.nodes.map(irToRfNode);
-    const edges = irGraph.edges.map(irToRfEdge);
     set((s) => ({
       ...pushSnapshot(s),
-      nodes,
-      edges,
-      graphName: irGraph.name,
-      selectedNodeId: null,
-      selectedNodeIds: [],
+      ...createWorkspaceFromGraph(irGraph),
       canUndo: true,
       canRedo: false,
     }));

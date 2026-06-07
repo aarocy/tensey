@@ -24,6 +24,7 @@ const CATEGORY_COLOR: Record<string,string> = {
 export function NodePalette() {
   const [query, setQuery] = useState("");
   const addNode = useTenseyStore((s) => s.addNode);
+  const width = useTenseyStore((s) => s.paletteWidth);
   const ops = listOps();
 
   const filtered = query
@@ -46,7 +47,7 @@ export function NodePalette() {
   }, [addNode]);
 
   return (
-    <aside className="w-44 shrink-0 bg-surface-1 border-r border-border flex flex-col overflow-hidden">
+    <aside className="shrink-0 bg-surface-1 border-r border-border flex flex-col overflow-hidden" style={{ width }}>
       <div className="px-2 py-1.5 border-b border-border">
         <input
           type="text"

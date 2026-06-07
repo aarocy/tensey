@@ -9,7 +9,6 @@
     "exactOptionalPropertyTypes": true,
     "lib": ["ESNext"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "skipLibCheck": true
   },

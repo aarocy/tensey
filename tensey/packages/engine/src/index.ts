@@ -22,3 +22,5 @@ export type { ShapeInferenceResult } from "./shape-rules.js";
 export { computeTelemetry } from "./telemetry.js";
 export type { NodeTelemetry, TelemetryReport } from "./telemetry.js";
 export { makeNode, makeEdge, makeGraph, resetCounters } from "./factory.js";
+export { exportGraphToPyTorch } from "./pytorch-export.js";
+export type { PyTorchExportResult } from "./pytorch-export.js";

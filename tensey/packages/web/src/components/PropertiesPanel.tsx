@@ -52,6 +52,7 @@ export function PropertiesPanel() {
   const nodes = useTenseyStore((s) => s.nodes);
   const shapeResult = useTenseyStore((s) => s.shapeResult);
   const telemetry = useTenseyStore((s) => s.telemetry);
+  const width = useTenseyStore((s) => s.inspectorWidth);
   const updateNodeParams = useTenseyStore((s) => s.updateNodeParams);
   const deleteNode = useTenseyStore((s) => s.deleteNode);
   const duplicateNode = useTenseyStore((s) => s.duplicateNode);
@@ -62,13 +63,13 @@ export function PropertiesPanel() {
   const diags = shapeResult?.diagnostics.filter((d) => d.nodeId === selectedNodeId) ?? [];
 
   if (!irNode) return (
-    <aside className="w-52 shrink-0 bg-surface-1 border-l border-border flex items-center justify-center">
+    <aside className="shrink-0 bg-surface-1 border-l border-border flex items-center justify-center" style={{ width }}>
       <span className="text-2xs font-mono text-text-disabled">no selection</span>
     </aside>
   );
 
   return (
-    <aside className="w-52 shrink-0 bg-surface-1 border-l border-border flex flex-col overflow-hidden font-mono">
+    <aside className="shrink-0 bg-surface-1 border-l border-border flex flex-col overflow-hidden font-mono" style={{ width }}>
       {/* Header */}
       <div className="px-3 py-2 border-b border-border flex items-start justify-between gap-2">
         <div>
