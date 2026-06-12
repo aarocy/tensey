@@ -161,14 +161,16 @@ export function Canvas() {
         fitView
         minZoom={0.15}
         maxZoom={2.5}
+        selectionOnDrag
+        panOnDrag={[1, 2]}
         deleteKeyCode={null}
         selectionKeyCode={null}
         multiSelectionKeyCode={["Control", "Meta"]}
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#222226" />
+        <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#3a4047" />
         <Controls showInteractive={false} />
-        <MiniMap nodeStrokeWidth={0} zoomable pannable style={{ bottom: 8, right: 8 }} />
+        <MiniMap nodeStrokeWidth={0} zoomable pannable style={{ bottom: 12, right: 12 }} />
       </ReactFlow>
 
       {nodes.length === 0 && <EmptyState />}
@@ -193,7 +195,7 @@ function EmptyState() {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
       <div className="text-center space-y-1.5">
-        <div className="text-xs font-mono text-text-disabled">drop a layer or click from the palette</div>
+        <div className="text-xs font-mono text-text-secondary">Choose a block from the left or drag across the canvas to start selecting.</div>
       </div>
     </div>
   );

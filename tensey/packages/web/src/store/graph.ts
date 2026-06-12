@@ -37,8 +37,7 @@ const DEFAULT_PALETTE_WIDTH = 244;
 const DEFAULT_INSPECTOR_WIDTH = 280;
 const PALETTE_WIDTH_KEY = "tensey:paletteWidth";
 const INSPECTOR_WIDTH_KEY = "tensey:inspectorWidth";
-const INTRO_SEEN_KEY = "tensey:introSeen";
-const INTRO_SESSION_COOKIE = "tensey_intro_seen";
+const DEMO_SESSION_COOKIE = "tensey_demo_seen";
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -51,11 +50,6 @@ function readStoredNumber(key: string, fallback: number): number {
   return Number.isFinite(value) ? value : fallback;
 }
 
-function readStoredFlag(key: string): boolean {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(key) === "1";
-}
-
 function hasSessionCookie(name: string): boolean {
   if (typeof window === "undefined") return false;
   return document.cookie.split("; ").some((part) => part === `${name}=1`);
@@ -66,17 +60,9 @@ function setSessionCookie(name: string): void {
   document.cookie = `${name}=1; path=/; SameSite=Lax`;
 }
 
-function introHasBeenSeen(): boolean {
-  if (typeof window === "undefined") return false;
-  return hasSessionCookie(INTRO_SESSION_COOKIE) || readStoredFlag(INTRO_SEEN_KEY);
-}
-
-function markIntroSeen(permanent = false): void {
+function markDemoSeen(): void {
   if (typeof window === "undefined") return;
-  setSessionCookie(INTRO_SESSION_COOKIE);
-  if (permanent) {
-    window.localStorage.setItem(INTRO_SEEN_KEY, "1");
-  }
+  setSessionCookie(DEMO_SESSION_COOKIE);
 }
 
 function persistWorkspaceState(state: Pick<TenseyStore, "nodes" | "edges" | "graphName">): void {
@@ -193,7 +179,7 @@ interface TenseyStore {
   graphName: string;
   paletteWidth: number;
   inspectorWidth: number;
-  isIntroOpen: boolean;
+  activeDialog: "welcome" | "templates" | null;
   dagResult: ValidationResult | null;
   shapeResult: ShapeAnalysisResult | null;
   telemetry: TelemetryReport | null;
@@ -232,6 +218,7 @@ interface TenseyStore {
   setPaletteWidth: (width: number) => void;
   setInspectorWidth: (width: number) => void;
   openIntro: () => void;
+  openTemplates: () => void;
   closeIntro: () => void;
   loadDemoGraph: () => void;
   loadExampleGraph: (id: ExampleGraphSpec["id"]) => void;
@@ -262,7 +249,7 @@ export const useTenseyStore = create<TenseyStore>((set, get) => ({
   ...initialWorkspace,
   paletteWidth: readStoredNumber(PALETTE_WIDTH_KEY, DEFAULT_PALETTE_WIDTH),
   inspectorWidth: readStoredNumber(INSPECTOR_WIDTH_KEY, DEFAULT_INSPECTOR_WIDTH),
-  isIntroOpen: !introHasBeenSeen() && storedWorkspaceGraph === null,
+  activeDialog: !hasSessionCookie(DEMO_SESSION_COOKIE) && storedWorkspaceGraph === null ? "welcome" : null,
   dagResult: null, shapeResult: null, telemetry: null,
   selectedNodeId: null, selectedNodeIds: [], clipboard: [],
   past: [], future: [], canUndo: false, canRedo: false,
@@ -579,22 +566,22 @@ export const useTenseyStore = create<TenseyStore>((set, get) => ({
     }
   },
   openIntro: () => {
-    if (introHasBeenSeen()) return;
-    set({ isIntroOpen: true });
+    set({ activeDialog: "welcome" });
+  },
+  openTemplates: () => {
+    set({ activeDialog: "templates" });
   },
   closeIntro: () => {
-    set({ isIntroOpen: false });
-    markIntroSeen(false);
+    set({ activeDialog: null });
   },
   loadDemoGraph: () => {
-    markIntroSeen(true);
+    markDemoSeen();
     get().loadGraph(createDemoGraph());
-    set({ isIntroOpen: false });
+    set({ activeDialog: null });
   },
   loadExampleGraph: (id) => {
-    markIntroSeen(true);
     get().loadGraph(getExampleGraph(id).graph);
-    set({ isIntroOpen: false });
+    set({ activeDialog: null });
   },
 
   runAnalysis: () => {

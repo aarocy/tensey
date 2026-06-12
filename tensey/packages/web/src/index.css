@@ -14,99 +14,108 @@ body,
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: #111113;
-  color: #e4e4e7;
+  background: #17191c;
+  color: #edf0f4;
 }
 
 body {
-  cursor: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 2L17 14.4L10.3 15.1L7.2 20L4 2Z' fill='%23f4f4f5' stroke='%23111113' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, default;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  cursor: default;
 }
 
 button,
 [role="button"],
 [draggable="true"] {
-  cursor: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 2L17 14.4L10.3 15.1L7.2 20L4 2Z' fill='%23f4f4f5' stroke='%23111113' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, pointer;
+  cursor: pointer;
 }
 
 .figma-cursor,
 .figma-cursor .react-flow__pane {
-  cursor: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 2L17 14.4L10.3 15.1L7.2 20L4 2Z' fill='%23f4f4f5' stroke='%23111113' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, default;
+  cursor: default;
 }
 
 .figma-cursor button,
 .figma-cursor input,
 .figma-cursor [draggable="true"],
 .figma-cursor .react-flow__node {
-  cursor: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 2L17 14.4L10.3 15.1L7.2 20L4 2Z' fill='%23f4f4f5' stroke='%23111113' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E") 4 2, pointer;
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(126, 160, 201, 0.8);
+  outline-offset: 2px;
 }
 
 /* React Flow overrides */
 .react-flow__background {
-  background: #111113;
+  background:
+    radial-gradient(circle at top left, rgba(126, 160, 201, 0.08), transparent 34%),
+    linear-gradient(180deg, #1a1d21 0%, #17191c 100%);
 }
 
 .react-flow__edge-path {
-  stroke: #3f3f47;
-  stroke-width: 1.5;
+  stroke: #5a616a;
+  stroke-width: 1.7;
 }
 
 .react-flow__edge.selected .react-flow__edge-path,
 .react-flow__edge:hover .react-flow__edge-path {
-  stroke: #3b82f6;
+  stroke: #8ba7c8;
   stroke-width: 2;
 }
 
 .react-flow__selection {
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(96, 165, 250, 0.55);
+  background: rgba(126, 160, 201, 0.12);
+  border: 1px solid rgba(159, 187, 224, 0.65);
 }
 
 .react-flow__nodesselection-rect {
-  border: 1px solid rgba(96, 165, 250, 0.55);
-  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(159, 187, 224, 0.65);
+  background: rgba(126, 160, 201, 0.08);
 }
 
 .react-flow__handle {
   width: 8px;
   height: 8px;
-  background: #3f3f47;
-  border: 1.5px solid #52525b;
+  background: #59616b;
+  border: 1.5px solid #77808c;
   border-radius: 2px;
   transition: background 0.1s, border-color 0.1s;
 }
 
 .react-flow__handle:hover,
 .react-flow__handle.connectingto {
-  background: #3b82f6;
-  border-color: #60a5fa;
+  background: #8ba7c8;
+  border-color: #b3c4dd;
 }
 
 .react-flow__handle.connected {
-  background: #27272c;
-  border-color: #3b82f6;
+  background: #23272c;
+  border-color: #8ba7c8;
 }
 
 .react-flow__controls {
-  background: #18181b;
-  border: 1px solid #2e2e34;
-  border-radius: 5px;
-  box-shadow: none;
+  background: rgba(29, 32, 36, 0.96);
+  border: 1px solid #3a4047;
+  border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
   overflow: hidden;
 }
 
 .react-flow__controls-button {
-  background: #18181b;
+  background: rgba(29, 32, 36, 0.96);
   border: none;
-  border-bottom: 1px solid #2e2e34;
-  color: #a1a1aa;
-  width: 26px;
-  height: 26px;
+  border-bottom: 1px solid #3a4047;
+  color: #c0c6cf;
+  width: 30px;
+  height: 30px;
   padding: 4px;
 }
 
 .react-flow__controls-button:hover {
-  background: #27272c;
-  color: #e4e4e7;
+  background: #2b3036;
+  color: #edf0f4;
 }
 
 .react-flow__controls-button:last-child {
@@ -119,18 +128,18 @@ button,
 }
 
 .react-flow__minimap {
-  background: #18181b;
-  border: 1px solid #2e2e34;
-  border-radius: 5px;
+  background: rgba(29, 32, 36, 0.96);
+  border: 1px solid #3a4047;
+  border-radius: 10px;
 }
 
 .react-flow__minimap-mask {
-  fill: rgba(59, 130, 246, 0.08);
+  fill: rgba(126, 160, 201, 0.12);
 }
 
 .react-flow__minimap-node {
-  fill: #27272c;
-  stroke: #3f3f47;
+  fill: #31363d;
+  stroke: #59616b;
 }
 
 /* Scrollbars */
@@ -142,6 +151,6 @@ button,
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3f3f47;
+  background: #59616b;
   border-radius: 2px;
 }

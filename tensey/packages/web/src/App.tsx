@@ -13,6 +13,7 @@ export default function App() {
   const inspectorWidth = useTenseyStore((s) => s.inspectorWidth);
   const setPaletteWidth = useTenseyStore((s) => s.setPaletteWidth);
   const setInspectorWidth = useTenseyStore((s) => s.setInspectorWidth);
+  const openIntro = useTenseyStore((s) => s.openIntro);
   const layoutRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,6 +62,14 @@ export default function App() {
         </div>
         <TelemetryBar />
         <IntroOverlay />
+        <button
+          type="button"
+          aria-label="Open workspace guide"
+          onClick={openIntro}
+          className="absolute bottom-3 left-3 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface-1 text-sm font-semibold text-text-primary shadow-[0_10px_30px_rgba(0,0,0,0.24)] transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/65"
+        >
+          ?
+        </button>
       </div>
     </ReactFlowProvider>
   );

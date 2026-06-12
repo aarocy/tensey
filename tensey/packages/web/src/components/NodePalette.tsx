@@ -15,10 +15,10 @@ const CATEGORY_LABELS: Record<string,string> = {
 };
 
 const CATEGORY_COLOR: Record<string,string> = {
-  io:"text-text-disabled", convolution:"text-blue-400", linear:"text-purple-400",
-  activation:"text-emerald-400", normalization:"text-yellow-400", pooling:"text-orange-400",
-  attention:"text-cyan-400", recurrent:"text-pink-400", reshape:"text-zinc-400",
-  merge:"text-violet-400", custom:"text-text-tertiary",
+  io:"text-text-secondary", convolution:"text-[#95a9c0]", linear:"text-[#a79db9]",
+  activation:"text-[#97ab9f]", normalization:"text-[#b9af8f]", pooling:"text-[#b89d88]",
+  attention:"text-[#8faeb5]", recurrent:"text-[#b199aa]", reshape:"text-[#a3aab2]",
+  merge:"text-[#9f9bbb]", custom:"text-text-secondary",
 };
 
 export function NodePalette() {
@@ -51,7 +51,7 @@ export function NodePalette() {
       <div className="px-2 py-1.5 border-b border-border">
         <input
           type="text"
-          placeholder="filter layers…"
+          placeholder="filter blocks..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full bg-surface-0 border border-border text-text-primary text-xs font-mono rounded px-2 py-1 placeholder:text-text-disabled outline-none focus:border-accent/50 transition-colors"

@@ -5,17 +5,17 @@ import { getOp } from "@tensey/engine";
 import clsx from "clsx";
 
 const CAT_ACCENT: Record<string, string> = {
-  io:           "text-text-disabled border-border",
-  convolution:  "text-blue-400 border-blue-900/60",
-  linear:       "text-purple-400 border-purple-900/60",
-  activation:   "text-emerald-400 border-emerald-900/60",
-  normalization:"text-yellow-400 border-yellow-900/60",
-  pooling:      "text-orange-400 border-orange-900/60",
-  attention:    "text-cyan-400 border-cyan-900/60",
-  recurrent:    "text-pink-400 border-pink-900/60",
-  reshape:      "text-zinc-400 border-zinc-800",
-  merge:        "text-violet-400 border-violet-900/60",
-  custom:       "text-text-tertiary border-border",
+  io:           "text-text-secondary border-border",
+  convolution:  "text-[#95a9c0] border-[#435263]",
+  linear:       "text-[#a79db9] border-[#50485e]",
+  activation:   "text-[#97ab9f] border-[#445347]",
+  normalization:"text-[#b9af8f] border-[#5c5646]",
+  pooling:      "text-[#b89d88] border-[#5d4f45]",
+  attention:    "text-[#8faeb5] border-[#46555a]",
+  recurrent:    "text-[#b199aa] border-[#584958]",
+  reshape:      "text-[#a3aab2] border-[#50565d]",
+  merge:        "text-[#9f9bbb] border-[#4b4860]",
+  custom:       "text-text-secondary border-border",
 };
 
 function fmt(shape: (number | null)[] | null): string {
@@ -35,7 +35,7 @@ export const TenseyNode = memo(function TenseyNode({ data, selected }: NodeProps
         "relative min-w-[148px] bg-surface-1 border rounded cursor-pointer select-none",
         "transition-all duration-75",
         hasError ? "border-error/70 shadow-[0_0_0_1px_rgba(239,68,68,0.15)]" :
-        selected ? "border-accent/60 shadow-[0_0_0_1px_rgba(59,130,246,0.15)]" :
+        selected ? "border-accent/70 shadow-[0_0_0_1px_rgba(126,160,201,0.24)]" :
         borderColor
       )}
     >
