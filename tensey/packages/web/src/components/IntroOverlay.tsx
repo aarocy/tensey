@@ -1,10 +1,13 @@
+import { CheckCircle2, LayoutTemplate, PanelRight, X } from "lucide-react";
 import { EXAMPLE_GRAPHS } from "../lib/examples";
 import { useTenseyStore } from "../store/graph";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
 
 const CONTROL_NOTES = [
   {
-    title: "Logo Menu",
-    body: "Open the logo menu for file actions, edit commands, templates, and help. The main chrome stays quiet until you need it.",
+    title: "Menu",
+    body: "File actions, edit commands, templates, and help are grouped under the main menu.",
   },
   {
     title: "Selection",
@@ -12,7 +15,7 @@ const CONTROL_NOTES = [
   },
   {
     title: "Inspector",
-    body: "The right panel only fills with information when something is selected, so the workspace stays readable.",
+    body: "The right panel shows block details only when a block is selected.",
   },
 ];
 
@@ -28,92 +31,84 @@ export function IntroOverlay() {
   const isTemplates = activeDialog === "templates";
 
   return (
-    <div className="absolute inset-0 z-40 flex items-center justify-center bg-[rgba(10,12,15,0.56)] px-4 backdrop-blur-[2px]">
+    <div className="absolute inset-0 z-40 flex items-center justify-center bg-[rgba(10,12,15,0.42)] px-4">
       <div
         role="dialog"
         aria-modal="true"
-        className="w-full max-w-4xl rounded-xl border border-border bg-surface-1/98 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:p-6"
+        className="w-full max-w-3xl rounded-md border border-border bg-surface-1 p-4 shadow-[0_12px_36px_rgba(0,0,0,0.32)]"
       >
-        <div className="mb-4 flex items-start justify-between gap-4">
+        <div className="mb-3 flex items-start justify-between gap-4 border-b border-border pb-3">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.28em] text-text-disabled">
-              {isTemplates ? "templates" : "workspace guide"}
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-text-disabled">
+              {isTemplates ? <LayoutTemplate className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+              {isTemplates ? "Templates" : "Workspace"}
             </div>
-            <h1 className="mt-2 text-lg font-medium text-text-primary">
-              {isTemplates ? "Start from a clean template." : "A quieter workspace with the controls where they belong."}
+            <h1 className="mt-2 text-base font-medium text-text-primary">
+              {isTemplates ? "Choose a starter graph" : "Workspace guide"}
             </h1>
           </div>
-          <button
-            onClick={closeIntro}
-            className="rounded border border-border px-2 py-1 font-mono text-xs text-text-secondary transition-colors hover:bg-surface-2 hover:text-text-primary"
-          >
-            close
-          </button>
+          <Button size="icon" variant="ghost" onClick={closeIntro} aria-label="Close">
+            <X className="h-4 w-4" />
+          </Button>
         </div>
 
         {isTemplates ? (
-          <div className="space-y-4">
-            <div className="rounded-lg border border-border bg-surface-0 px-4 py-3 text-sm leading-6 text-text-secondary">
-              Templates remain available from the logo menu at any time. The demo is intentionally separate and only marked for the current session.
-            </div>
-
+          <div className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
               {EXAMPLE_GRAPHS.map((example) => (
                 <button
                   key={example.id}
                   onClick={() => loadExampleGraph(example.id)}
-                  className="group rounded-lg border border-border bg-surface-0 p-4 text-left transition-colors hover:border-accent/40 hover:bg-surface-2"
+                  className="group rounded-md border border-border bg-surface-0 p-3 text-left transition-colors hover:border-border-strong hover:bg-surface-2"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-medium text-text-primary">{example.name}</div>
                       <div className="mt-1 text-xs leading-5 text-text-secondary">{example.subtitle}</div>
                     </div>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-tertiary group-hover:text-text-primary">load</span>
+                    <LayoutTemplate className="mt-0.5 h-4 w-4 shrink-0 text-text-tertiary group-hover:text-text-primary" aria-hidden="true" />
                   </div>
                 </button>
               ))}
             </div>
           </div>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[1fr_1.05fr]">
+          <div className="grid gap-3 lg:grid-cols-[1fr_1fr]">
             <div className="space-y-3">
               {CONTROL_NOTES.map((note) => (
-                <div key={note.title} className="rounded-lg border border-border bg-surface-0 px-4 py-3">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-text-disabled">{note.title}</div>
+                <Card key={note.title} className="px-3 py-2.5">
+                  <div className="text-xs font-medium uppercase tracking-[0.18em] text-text-disabled">{note.title}</div>
                   <div className="mt-1.5 text-sm leading-6 text-text-secondary">{note.body}</div>
-                </div>
+                </Card>
               ))}
 
-              <div className="rounded-lg border border-border bg-surface-0 px-4 py-3">
-                <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-text-disabled">Minimal Demo</div>
+              <Card className="px-3 py-2.5">
+                <div className="text-xs font-medium uppercase tracking-[0.18em] text-text-disabled">Minimal Demo</div>
                 <div className="mt-2 text-sm leading-6 text-text-secondary">
-                  Load a restrained four-step example to see the canvas, inspector, and export path without a wall of nodes.
+                  Load a small graph to check the canvas, inspector, and export path.
                 </div>
-                <button
-                  onClick={loadDemoGraph}
-                  className="mt-3 rounded border border-accent/40 bg-accent/10 px-3 py-2 font-mono text-xs text-text-primary transition-colors hover:bg-accent/15"
-                >
-                  load demo
-                </button>
-              </div>
+                <Button onClick={loadDemoGraph} className="mt-3" size="sm">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Load demo
+                </Button>
+              </Card>
             </div>
 
-            <div className="rounded-lg border border-border bg-surface-0 p-4">
+            <Card className="p-3">
               <div className="flex items-baseline justify-between gap-3">
                 <div>
-                  <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-text-disabled">Templates</div>
-                  <div className="mt-1 text-sm text-text-primary">Use structured starting points when you need them.</div>
+                  <div className="text-xs font-medium uppercase tracking-[0.18em] text-text-disabled">Templates</div>
+                  <div className="mt-1 text-sm text-text-primary">Structured starting points</div>
                 </div>
-                <div className="text-xs text-text-tertiary">always under the logo</div>
+                <PanelRight className="h-4 w-4 text-text-tertiary" aria-hidden="true" />
               </div>
 
-              <div className="mt-4 space-y-2">
+              <div className="mt-3 space-y-2">
                 {EXAMPLE_GRAPHS.slice(0, 3).map((example) => (
                   <button
                     key={example.id}
                     onClick={() => loadExampleGraph(example.id)}
-                    className="w-full rounded-lg border border-border bg-surface-1 px-3 py-2.5 text-left transition-colors hover:border-accent/35 hover:bg-surface-2"
+                    className="w-full rounded border border-border bg-surface-1 px-3 py-2.5 text-left transition-colors hover:border-border-strong hover:bg-surface-2"
                   >
                     <div className="text-sm font-medium text-text-primary">{example.name}</div>
                     <div className="mt-1 text-xs leading-5 text-text-secondary">{example.subtitle}</div>
@@ -121,24 +116,19 @@ export function IntroOverlay() {
                 ))}
               </div>
 
-              <button
-                onClick={openTemplates}
-                className="mt-4 rounded border border-border px-3 py-2 font-mono text-xs text-text-secondary transition-colors hover:bg-surface-2 hover:text-text-primary"
-              >
-                browse all templates
-              </button>
-            </div>
+              <Button onClick={openTemplates} className="mt-3" size="sm">
+                <LayoutTemplate className="h-4 w-4" />
+                Browse all
+              </Button>
+            </Card>
           </div>
         )}
 
         {!isTemplates && (
-          <div className="mt-5 flex items-center justify-end gap-2">
-            <button
-              onClick={closeIntro}
-              className="rounded border border-border px-3 py-2 font-mono text-xs text-text-secondary transition-colors hover:bg-surface-2 hover:text-text-primary"
-            >
-              start blank
-            </button>
+          <div className="mt-4 flex items-center justify-end gap-2">
+            <Button onClick={closeIntro} size="sm" variant="secondary">
+              Close
+            </Button>
           </div>
         )}
       </div>

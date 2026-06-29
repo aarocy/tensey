@@ -50,11 +50,6 @@ function readStoredNumber(key: string, fallback: number): number {
   return Number.isFinite(value) ? value : fallback;
 }
 
-function hasSessionCookie(name: string): boolean {
-  if (typeof window === "undefined") return false;
-  return document.cookie.split("; ").some((part) => part === `${name}=1`);
-}
-
 function setSessionCookie(name: string): void {
   if (typeof window === "undefined") return;
   document.cookie = `${name}=1; path=/; SameSite=Lax`;
@@ -249,7 +244,7 @@ export const useTenseyStore = create<TenseyStore>((set, get) => ({
   ...initialWorkspace,
   paletteWidth: readStoredNumber(PALETTE_WIDTH_KEY, DEFAULT_PALETTE_WIDTH),
   inspectorWidth: readStoredNumber(INSPECTOR_WIDTH_KEY, DEFAULT_INSPECTOR_WIDTH),
-  activeDialog: !hasSessionCookie(DEMO_SESSION_COOKIE) && storedWorkspaceGraph === null ? "welcome" : null,
+  activeDialog: null,
   dagResult: null, shapeResult: null, telemetry: null,
   selectedNodeId: null, selectedNodeIds: [], clipboard: [],
   past: [], future: [], canUndo: false, canRedo: false,

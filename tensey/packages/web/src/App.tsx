@@ -1,5 +1,6 @@
 import { useEffect, useRef, type MouseEvent as ReactMouseEvent } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
+import { CircleHelp, GripVertical } from "lucide-react";
 import { Canvas } from "./components/Canvas";
 import { IntroOverlay } from "./components/IntroOverlay";
 import { NodePalette } from "./components/NodePalette";
@@ -66,9 +67,9 @@ export default function App() {
           type="button"
           aria-label="Open workspace guide"
           onClick={openIntro}
-          className="absolute bottom-3 left-3 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface-1 text-sm font-semibold text-text-primary shadow-[0_10px_30px_rgba(0,0,0,0.24)] transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/65"
+          className="absolute bottom-3 left-3 z-20 flex h-9 w-9 items-center justify-center rounded border border-border bg-surface-1 text-text-secondary shadow-[0_8px_22px_rgba(0,0,0,0.2)] transition-colors hover:bg-surface-2 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/65"
         >
-          ?
+          <CircleHelp className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
     </ReactFlowProvider>
@@ -91,10 +92,10 @@ function ResizeHandle({
       type="button"
       aria-label={side === "left" ? "Resize blocks panel" : "Resize inspector panel"}
       onMouseDown={onMouseDown}
-      className="absolute top-0 bottom-0 z-10 w-3 -translate-x-1/2 flex items-center justify-center text-[10px] text-text-disabled hover:text-text-primary focus:outline-none cursor-col-resize"
+      className="absolute top-0 bottom-0 z-10 flex w-3 -translate-x-1/2 cursor-col-resize items-center justify-center text-text-disabled hover:text-text-primary focus:outline-none"
       style={side === "left" ? { left } : { right }}
     >
-      <span className="pointer-events-none select-none">↔</span>
+      <GripVertical className="pointer-events-none h-4 w-4" aria-hidden="true" />
     </button>
   );
 }
