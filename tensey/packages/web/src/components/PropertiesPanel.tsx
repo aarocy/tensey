@@ -9,12 +9,12 @@ function fmt(shape: (number | null)[] | null): string {
 
 function ParamField({ label, value, onChange }: { label: string; value: ParamValue; onChange: (v: ParamValue) => void }) {
   if (typeof value === "boolean") return (
-    <div className="flex items-center justify-between py-0.5">
-      <span className="text-2xs font-mono text-text-tertiary">{label}</span>
+    <div className="flex items-center justify-between gap-3 py-1">
+      <span className="text-xs text-text-tertiary">{label}</span>
       <button
         onClick={() => onChange(!value)}
-        className={clsx("text-2xs font-mono px-1.5 py-0.5 rounded border transition-colors",
-          value ? "text-accent border-accent/40 bg-accent/5" : "text-text-disabled border-border bg-surface-3"
+        className={clsx("h-5 min-w-12 border px-1.5 text-[12px] transition-colors",
+          value ? "text-accent border-accent bg-surface-2" : "text-text-disabled border-border bg-surface-3"
         )}
       >{value ? "true" : "false"}</button>
     </div>
@@ -22,9 +22,9 @@ function ParamField({ label, value, onChange }: { label: string; value: ParamVal
 
   if (Array.isArray(value)) return (
     <div className="py-0.5">
-      <span className="text-2xs font-mono text-text-tertiary block mb-0.5">{label}</span>
+      <span className="text-xs text-text-tertiary block mb-0.5">{label}</span>
       <input
-        className="w-full bg-surface-0 border border-border text-text-primary text-2xs font-mono rounded px-1.5 py-1 outline-none focus:border-accent/50 transition-colors"
+        className="w-full bg-surface-0 border border-border text-text-primary text-xs rounded-sm px-1.5 py-1 outline-none focus:border-accent transition-colors"
         value={value.join(", ")}
         onChange={(e) => {
           const parts = e.target.value.split(",").map((p) => p.trim() === "null" || p.trim() === "N" ? null : Number(p.trim())).filter((n) => n === null || !isNaN(n as number));
@@ -36,10 +36,10 @@ function ParamField({ label, value, onChange }: { label: string; value: ParamVal
 
   return (
     <div className="py-0.5">
-      <span className="text-2xs font-mono text-text-tertiary block mb-0.5">{label}</span>
+      <span className="text-xs text-text-tertiary block mb-0.5">{label}</span>
       <input
         type={typeof value === "number" ? "number" : "text"}
-        className="w-full bg-surface-0 border border-border text-text-primary text-2xs font-mono rounded px-1.5 py-1 outline-none focus:border-accent/50 transition-colors"
+        className="w-full bg-surface-0 border border-border text-text-primary text-xs rounded-sm px-1.5 py-1 outline-none focus:border-accent transition-colors"
         value={value as string | number}
         onChange={(e) => onChange(typeof value === "number" ? Number(e.target.value) : e.target.value)}
       />
@@ -63,18 +63,18 @@ export function PropertiesPanel() {
   const diags = shapeResult?.diagnostics.filter((d) => d.nodeId === selectedNodeId) ?? [];
 
   if (!irNode) return (
-    <aside className="shrink-0 bg-surface-1 border-l border-border flex items-center justify-center" style={{ width }}>
-      <span className="text-2xs font-mono text-text-disabled">no selection</span>
+    <aside data-tutorial="inspector" className="shrink-0 bg-surface-1 border-l border-border flex items-center justify-center" style={{ width }}>
+      <span className="text-xs text-text-disabled">No selection</span>
     </aside>
   );
 
   return (
-    <aside className="shrink-0 bg-surface-1 border-l border-border flex flex-col overflow-hidden font-mono" style={{ width }}>
+    <aside data-tutorial="inspector" className="shrink-0 bg-surface-1 border-l border-border flex flex-col overflow-hidden" style={{ width }}>
       {/* Header */}
       <div className="px-3 py-2 border-b border-border flex items-start justify-between gap-2">
         <div>
-          <div className="text-xs font-mono font-medium text-text-primary">{irNode.label}</div>
-          <div className="text-2xs font-mono text-text-disabled mt-0.5">{irNode.id}</div>
+          <div className="text-[13px] font-medium text-text-primary">{irNode.label}</div>
+          <div className="text-[12px] text-text-disabled mt-0.5">{irNode.id}</div>
         </div>
         <div className="flex gap-1 shrink-0 mt-0.5">
           <PanelBtn onClick={() => duplicateNode(irNode.id)} title="Duplicate">⧉</PanelBtn>
@@ -117,10 +117,10 @@ export function PropertiesPanel() {
         {diags.length > 0 && (
           <Section label="diagnostics">
             {diags.map((d, i) => (
-              <div key={i} className={clsx("text-2xs font-mono rounded px-2 py-1.5 mb-1 leading-relaxed",
+              <div key={i} className={clsx("text-xs px-2 py-1.5 mb-1 leading-relaxed border",
                 d.severity === "error" ? "bg-error-bg text-error border border-error/20" :
                 d.severity === "warning" ? "bg-warning-bg text-warning border border-warning/20" :
-                "bg-surface-3 text-text-secondary"
+                "bg-surface-3 text-text-secondary border-border"
               )}>
                 {d.message}
               </div>
@@ -135,7 +135,7 @@ export function PropertiesPanel() {
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="px-3 py-2 border-b border-border/60">
-      <div className="text-2xs font-mono text-text-disabled uppercase tracking-widest mb-1.5">{label}</div>
+      <div className="text-[12px] text-text-disabled uppercase mb-1.5">{label}</div>
       {children}
     </div>
   );
@@ -143,9 +143,9 @@ function Section({ label, children }: { label: string; children: React.ReactNode
 
 function Row({ label, value, dim }: { label: string; value: string; dim?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-0.5">
-      <span className="text-2xs font-mono text-text-tertiary">{label}</span>
-      <span className={clsx("text-2xs font-mono", dim ? "text-text-tertiary" : "text-text-secondary")}>{value}</span>
+    <div className="grid grid-cols-[minmax(72px,0.8fr)_minmax(0,1fr)] items-center gap-3 py-0.5">
+      <span className="text-xs text-text-tertiary">{label}</span>
+      <span className={clsx("truncate text-right text-xs", dim ? "text-text-tertiary" : "text-text-secondary")}>{value}</span>
     </div>
   );
 }
@@ -155,7 +155,7 @@ function PanelBtn({ onClick, children, title, danger }: { onClick: () => void; c
     <button
       onClick={onClick}
       title={title}
-      className={clsx("w-5 h-5 text-2xs font-mono rounded flex items-center justify-center transition-colors border",
+      className={clsx("w-5 h-5 text-[12px] flex items-center justify-center transition-colors border",
         danger ? "text-error/60 border-error/20 hover:bg-error-bg hover:text-error" :
         "text-text-disabled border-border hover:bg-surface-3 hover:text-text-secondary"
       )}

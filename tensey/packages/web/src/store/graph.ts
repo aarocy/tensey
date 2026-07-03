@@ -37,6 +37,7 @@ const DEFAULT_PALETTE_WIDTH = 244;
 const DEFAULT_INSPECTOR_WIDTH = 280;
 const PALETTE_WIDTH_KEY = "tensey:paletteWidth";
 const INSPECTOR_WIDTH_KEY = "tensey:inspectorWidth";
+const TUTORIAL_SEEN_KEY = "tensey:tutorialSeen";
 const DEMO_SESSION_COOKIE = "tensey_demo_seen";
 
 function clamp(value: number, min: number, max: number): number {
@@ -48,6 +49,16 @@ function readStoredNumber(key: string, fallback: number): number {
   const raw = window.localStorage.getItem(key);
   const value = raw ? Number(raw) : fallback;
   return Number.isFinite(value) ? value : fallback;
+}
+
+function shouldShowTutorial(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(TUTORIAL_SEEN_KEY) !== "1";
+}
+
+function markTutorialSeen(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(TUTORIAL_SEEN_KEY, "1");
 }
 
 function setSessionCookie(name: string): void {
@@ -244,7 +255,7 @@ export const useTenseyStore = create<TenseyStore>((set, get) => ({
   ...initialWorkspace,
   paletteWidth: readStoredNumber(PALETTE_WIDTH_KEY, DEFAULT_PALETTE_WIDTH),
   inspectorWidth: readStoredNumber(INSPECTOR_WIDTH_KEY, DEFAULT_INSPECTOR_WIDTH),
-  activeDialog: null,
+  activeDialog: shouldShowTutorial() ? "welcome" : null,
   dagResult: null, shapeResult: null, telemetry: null,
   selectedNodeId: null, selectedNodeIds: [], clipboard: [],
   past: [], future: [], canUndo: false, canRedo: false,
@@ -567,9 +578,11 @@ export const useTenseyStore = create<TenseyStore>((set, get) => ({
     set({ activeDialog: "templates" });
   },
   closeIntro: () => {
+    if (get().activeDialog === "welcome") markTutorialSeen();
     set({ activeDialog: null });
   },
   loadDemoGraph: () => {
+    markTutorialSeen();
     markDemoSeen();
     get().loadGraph(createDemoGraph());
     set({ activeDialog: null });

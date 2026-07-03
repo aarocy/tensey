@@ -10,8 +10,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  default: "border-border-strong bg-surface-3 text-text-primary hover:bg-surface-4",
-  secondary: "border-border bg-surface-1 text-text-secondary hover:bg-surface-2 hover:text-text-primary",
+  default: "border-accent bg-accent text-white hover:bg-accent-hover",
+  secondary: "border-border bg-surface-2 text-text-secondary hover:bg-surface-3 hover:text-text-primary",
   ghost: "border-transparent bg-transparent text-text-secondary hover:bg-surface-2 hover:text-text-primary",
   danger: "border-transparent bg-transparent text-error hover:bg-error/10",
 };
@@ -28,7 +28,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       type={type}
       className={cn(
-        "inline-flex items-center gap-2 rounded border font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
+        "inline-flex items-center gap-2 rounded-sm border font-medium transition-colors disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60",
         variants[variant],
         sizes[size],
         className,

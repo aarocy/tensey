@@ -6,15 +6,15 @@ import clsx from "clsx";
 
 const CAT_ACCENT: Record<string, string> = {
   io:           "text-text-secondary border-border",
-  convolution:  "text-[#95a9c0] border-[#435263]",
-  linear:       "text-[#a79db9] border-[#50485e]",
-  activation:   "text-[#97ab9f] border-[#445347]",
-  normalization:"text-[#b9af8f] border-[#5c5646]",
-  pooling:      "text-[#b89d88] border-[#5d4f45]",
-  attention:    "text-[#8faeb5] border-[#46555a]",
-  recurrent:    "text-[#b199aa] border-[#584958]",
-  reshape:      "text-[#a3aab2] border-[#50565d]",
-  merge:        "text-[#9f9bbb] border-[#4b4860]",
+  convolution:  "text-[#93c5fd] border-[#314155]",
+  linear:       "text-[#c4b5fd] border-[#443857]",
+  activation:   "text-[#86efac] border-[#32483a]",
+  normalization:"text-[#fde68a] border-[#4a432b]",
+  pooling:      "text-[#fdba74] border-[#4c3929]",
+  attention:    "text-[#67e8f9] border-[#2d4750]",
+  recurrent:    "text-[#f9a8d4] border-[#4c3445]",
+  reshape:      "text-[#cbd5e1] border-[#3f4650]",
+  merge:        "text-[#d8b4fe] border-[#473757]",
   custom:       "text-text-secondary border-border",
 };
 
@@ -32,10 +32,10 @@ export const TenseyNode = memo(function TenseyNode({ data, selected }: NodeProps
   return (
     <div
       className={clsx(
-        "relative min-w-[148px] bg-surface-1 border rounded cursor-pointer select-none",
+        "relative min-w-[148px] bg-surface-1 border rounded-sm cursor-pointer select-none",
         "transition-all duration-75",
-        hasError ? "border-error/70 shadow-[0_0_0_1px_rgba(239,68,68,0.15)]" :
-        selected ? "border-accent/70 shadow-[0_0_0_1px_rgba(126,160,201,0.24)]" :
+        hasError ? "border-error/70" :
+        selected ? "border-accent" :
         borderColor
       )}
     >
@@ -50,10 +50,10 @@ export const TenseyNode = memo(function TenseyNode({ data, selected }: NodeProps
 
       {/* Header bar */}
       <div className={clsx("px-2 py-1 flex items-center gap-1.5 border-b border-border/40")}>
-        <span className={clsx("text-xs font-mono font-medium truncate flex-1", textColor)}>
+        <span className={clsx("text-xs font-medium truncate flex-1", textColor)}>
           {irNode.label}
         </span>
-        {hasError && <span className="text-2xs font-mono text-error shrink-0">!</span>}
+        {hasError && <span className="text-2xs text-error shrink-0">!</span>}
       </div>
 
       {/* Shape rows */}
@@ -61,8 +61,8 @@ export const TenseyNode = memo(function TenseyNode({ data, selected }: NodeProps
         <div className="px-2 py-1.5 space-y-0.5">
           {irNode.inputs.map((p) => (
             <div key={p.name} className="flex items-center gap-1">
-              <span className="text-2xs text-text-disabled w-5 shrink-0 font-mono">{p.name}</span>
-              <span className="text-2xs font-mono text-text-tertiary">{fmt(p.shape)}</span>
+              <span className="text-2xs text-text-disabled w-5 shrink-0">{p.name}</span>
+              <span className="text-2xs text-text-tertiary">{fmt(p.shape)}</span>
             </div>
           ))}
           {irNode.inputs.length > 0 && irNode.outputs.length > 0 && (
@@ -70,8 +70,8 @@ export const TenseyNode = memo(function TenseyNode({ data, selected }: NodeProps
           )}
           {irNode.outputs.map((p) => (
             <div key={p.name} className="flex items-center gap-1 justify-end">
-              <span className="text-2xs font-mono text-text-secondary">{fmt(p.shape)}</span>
-              <span className="text-2xs text-text-disabled w-5 shrink-0 font-mono text-right">{p.name}</span>
+              <span className="text-2xs text-text-secondary">{fmt(p.shape)}</span>
+              <span className="text-2xs text-text-disabled w-5 shrink-0 text-right">{p.name}</span>
             </div>
           ))}
         </div>

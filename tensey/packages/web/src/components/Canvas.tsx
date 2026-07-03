@@ -140,7 +140,7 @@ export function Canvas() {
   }, [addNode]);
 
   return (
-    <div ref={wrapperRef} className="flex-1 relative figma-cursor">
+    <div ref={wrapperRef} data-tutorial="canvas" className="flex-1 relative figma-cursor">
       <ReactFlow
         nodes={nodes} edges={edges}
         onNodesChange={onNodesChange}
@@ -168,7 +168,7 @@ export function Canvas() {
         multiSelectionKeyCode={["Control", "Meta"]}
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={22} size={1} color="#3a4047" />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#31313a" />
         <Controls showInteractive={false} />
         <MiniMap nodeStrokeWidth={0} zoomable pannable style={{ bottom: 12, right: 12 }} />
       </ReactFlow>
@@ -195,7 +195,7 @@ function EmptyState() {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
       <div className="text-center space-y-1.5">
-        <div className="text-xs font-mono text-text-secondary">Choose a block from the left or drag across the canvas to start selecting.</div>
+        <div className="text-xs text-text-secondary">Choose a node from the left or drag across the canvas to start selecting.</div>
       </div>
     </div>
   );

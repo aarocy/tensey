@@ -50,7 +50,7 @@ export function ContextMenu({ x, y, items, onClose }: Props) {
     <div
       ref={ref}
       style={style}
-      className="w-44 bg-surface-2 border border-border rounded shadow-xl py-1 select-none"
+      className="w-44 bg-surface-1 border border-border py-1 select-none"
     >
       {items.map((item, i) => {
         if ("separator" in item && item.separator) {

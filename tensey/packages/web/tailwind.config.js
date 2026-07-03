@@ -4,29 +4,29 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["'IBM Plex Sans'", "system-ui", "sans-serif"],
-        mono: ["'IBM Plex Mono'", "monospace"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
         canvas: {
-          bg: "#17191c",
-          grid: "#2b3036",
+          bg: "#18181b",
+          grid: "#31313a",
         },
         surface: {
-          0: "#17191c",
-          1: "#1d2024",
-          2: "#252a30",
-          3: "#2b3036",
-          4: "#39414a",
+          0: "#18181b",
+          1: "#1f1f23",
+          2: "#25252b",
+          3: "#2b2b33",
+          4: "#31313a",
         },
         border: {
-          DEFAULT: "#3a4047",
-          strong: "#59616b",
+          DEFAULT: "#31313a",
+          strong: "#3f3f46",
         },
         accent: {
-          DEFAULT: "#7ea0c9",
-          hover: "#9db6d4",
-          muted: "#526b89",
+          DEFAULT: "#3b82f6",
+          hover: "#60a5fa",
+          muted: "#1d4ed8",
         },
         error: {
           DEFAULT: "#ff8a8a",
@@ -44,10 +44,10 @@ export default {
           bg: "#18251d",
         },
         text: {
-          primary: "#edf0f4",
-          secondary: "#c0c6cf",
-          tertiary: "#99a1ab",
-          disabled: "#6b7480",
+          primary: "#f4f4f5",
+          secondary: "#a1a1aa",
+          tertiary: "#71717a",
+          disabled: "#71717a",
         },
       },
       fontSize: {
@@ -58,10 +58,10 @@ export default {
         md: ["14px", "20px"],
       },
       borderRadius: {
-        sm: "3px",
-        DEFAULT: "5px",
-        md: "7px",
-        lg: "10px",
+        sm: "2px",
+        DEFAULT: "4px",
+        md: "6px",
+        lg: "8px",
       },
     },
   },
