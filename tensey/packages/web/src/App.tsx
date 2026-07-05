@@ -1,6 +1,7 @@
 import { useEffect, useRef, type MouseEvent as ReactMouseEvent } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { CircleHelp, GripVertical } from "lucide-react";
+import { Analytics } from "@vercel/analytics/react";
 import { Canvas } from "./components/Canvas";
 import { IntroOverlay } from "./components/IntroOverlay";
 import { NodePalette } from "./components/NodePalette";
@@ -71,6 +72,7 @@ export default function App() {
         >
           <CircleHelp className="h-4 w-4" aria-hidden="true" />
         </button>
+        <Analytics />
       </div>
     </ReactFlowProvider>
   );
